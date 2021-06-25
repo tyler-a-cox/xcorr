@@ -12,7 +12,7 @@ class Cube:
 
     def cross(self, a):
         """
-        Cross-correlate with another cube object
+        Use powerbox to cross-correlate with another cube object
         """
         pass
 
@@ -30,6 +30,13 @@ class Hyperfine(Cube):
         """ """
         super().__init__(**kwargs)
 
+    def simulate(self):
+        """
+        Use inputs to simulate 21cm - 21cmFAST. Note this will probably just end
+        up inheriting lots of the properties of 21cmFAST
+        """
+        pass
+
     def __repr__(self):
         """ """
         pass
@@ -41,6 +48,13 @@ class LymanAlpha(Cube):
     def __init__(self):
         """ """
         super().__init__(**kwargs)
+
+    def simulate(self, attenuation=False, method="skewer"):
+        """
+        Simulate lyman alpha
+        """
+        assert (method in ["skewer", "bubble"], "Not a valid attenuation model method")
+        pass
 
     def __repr__(self):
         """ """
