@@ -41,3 +41,7 @@ class LymanAlpha(Cube):
     def __init__(self):
         """ """
         super().__init__(**kwargs)
+
+    def __repr__(self):
+        """ """
+        pass
