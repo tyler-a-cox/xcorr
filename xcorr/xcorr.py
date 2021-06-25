@@ -16,7 +16,7 @@ class Cube:
         """
         pass
 
-    def pspec():
+    def pspec(self):
         """
         Calculate the power spectrum
         """
@@ -28,6 +28,7 @@ class Hyperfine(Cube):
 
     def __init__(self, **kwargs):
         """ """
+        name = "21cm"
         super().__init__(**kwargs)
 
     def simulate(self):
@@ -47,11 +48,52 @@ class LymanAlpha(Cube):
 
     def __init__(self):
         """ """
+        name = "Lyman Alpha"
         super().__init__(**kwargs)
 
     def simulate(self, attenuation=False, method="skewer"):
         """
         Simulate lyman alpha
+        """
+        assert (method in ["skewer", "bubble"], "Not a valid attenuation model method")
+        pass
+
+    def __repr__(self):
+        """ """
+        pass
+
+
+class CarbonMonoxide(Cube):
+    """ """
+
+    def __init__(self):
+        """ """
+        name = "CO"
+        super().__init__(**kwargs)
+
+    def simulate(self, attenuation=False, method="skewer"):
+        """
+        Simulate lyman alpha
+        """
+        assert (method in ["skewer", "bubble"], "Not a valid attenuation model method")
+        pass
+
+    def __repr__(self):
+        """ """
+        pass
+
+
+class HAlpha(Cube):
+    """ """
+
+    def __init__(self):
+        """ """
+        name = "H-alpha"
+        super().__init__(**kwargs)
+
+    def simulate(self, attenuation=False, method="skewer"):
+        """
+        Simulate hydrogen-alpha
         """
         assert (method in ["skewer", "bubble"], "Not a valid attenuation model method")
         pass
