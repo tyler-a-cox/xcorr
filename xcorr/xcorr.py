@@ -343,7 +343,7 @@ class LymanAlpha(Cube):
         """
         Simulate lyman alpha
         """
-        assert (method in ["skewer", "bubble"], "Not a valid attenuation model method")
+        assert method in ["skewer", "bubble"], "Not a valid attenuation model method"
         pass
 
     def __repr__(self):
@@ -363,7 +363,7 @@ class CarbonMonoxide(Cube):
         """
         Simulate lyman alpha
         """
-        assert (method in ["skewer", "bubble"], "Not a valid attenuation model method")
+        assert method in ["skewer", "bubble"], "Not a valid attenuation model method"
         pass
 
     def __repr__(self):
@@ -383,7 +383,7 @@ class HAlpha(Cube):
         """
         Simulate hydrogen-alpha
         """
-        assert (method in ["skewer", "bubble"], "Not a valid attenuation model method")
+        assert method in ["skewer", "bubble"], "Not a valid attenuation model method"
         pass
 
     def __repr__(self):
