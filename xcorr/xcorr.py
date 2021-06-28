@@ -3,7 +3,6 @@ import glob
 import numpy as np
 import astropy.units as u
 from scipy.interpolate import interp1d
-from matplotlib.colors import SymLogNorm
 from astropy.cosmology import Planck15 as cosmo
 from astropy import constants as const
 from powerbox import get_power
@@ -13,12 +12,14 @@ from scipy.ndimage.filters import gaussian_filter
 
 def star_formation_rate(M, z=7, sim_num=1):
     """
-    Returns the star-formation rate for a dark-matter halo of a given mass and redshift
+    Returns the star-formation rate for a dark-matter halo of a given mass
+    and redshift
 
     Units: M_sun per year
 
 
-    Note: Zero-out redshift for now. Other versions of this equation use redshift but the current
+    Note: Zero-out redshift for now. Other versions of this equation use
+    redshift but the current
           sim that I am basing this equation off of does not use redshift.
 
     https://arxiv.org/pdf/1205.1493.pdf
@@ -290,11 +291,11 @@ class Cube:
             deltax2 = cube
 
         if get_variance:
-            ps, k, var = power_spectra(
+            ps, k, var = self.power_spectra(
                 cube, boxlength, get_variance=get_variance, deltax2=deltax2, **kwargs
             )
         else:
-            ps, k = power_spectra(cube, boxlength, deltax2=deltax2, **kwargs)
+            ps, k = self.power_spectra(cube, boxlength, deltax2=deltax2, **kwargs)
 
         return cube.mean() * deltax2.mean() * ps, k
 
@@ -302,9 +303,9 @@ class Cube:
         """
         Cross-correlation coefficient
         """
-        PS_1, k = power_spectra(deltax, boxlength, **kwargs)
-        PS_2, _ = power_spectra(deltax2, boxlength, **kwargs)
-        PS_x, _ = power_spectra(deltax, boxlength, deltax2=deltax2, **kwargs)
+        PS_1, k = self.power_spectra(deltax, boxlength, **kwargs)
+        PS_2, _ = self.power_spectra(deltax2, boxlength, **kwargs)
+        PS_x, _ = self.power_spectra(deltax, boxlength, deltax2=deltax2, **kwargs)
         return PS_x / np.sqrt(PS_1 * PS_2), k
 
 
