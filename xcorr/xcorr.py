@@ -3,8 +3,6 @@ import glob
 import numpy as np
 import astropy.units as u
 from scipy.interpolate import interp1d
-import matplotlib.pyplot as plt
-import matplotlib
 from matplotlib.colors import SymLogNorm
 from astropy.cosmology import Planck15 as cosmo
 from astropy import constants as const
