@@ -1,14 +1,10 @@
-import sys
-import glob
 import numpy as np
 import tqdm
 import astropy.units as u
-from scipy.interpolate import interp1d
 from astropy.cosmology import Planck15 as cosmo
 from astropy import constants as const
 from powerbox import get_power
-from hmf import MassFunction
-from scipy.ndimage.filters import gaussian_filter
+import hmf
 
 
 def tau_s(z_s):

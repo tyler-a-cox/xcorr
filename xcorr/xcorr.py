@@ -1,13 +1,11 @@
-import sys
-import glob
 import numpy as np
 import astropy.units as u
-from scipy.interpolate import interp1d
 from astropy.cosmology import Planck15 as cosmo
 from astropy import constants as const
 from powerbox import get_power
-from hmf import MassFunction
-from scipy.ndimage.filters import gaussian_filter
+
+# import hmf import MassFunction
+import hmf
 
 
 def star_formation_rate(M, z=7, sim_num=1):
