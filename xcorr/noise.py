@@ -4,7 +4,6 @@ import astropy.units as u
 from astropy.cosmology import Planck15 as cosmo
 from astropy import constants as const
 from powerbox import get_power
-import hmf
 
 
 def tau_s(z_s):

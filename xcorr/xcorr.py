@@ -4,9 +4,6 @@ from astropy.cosmology import Planck15 as cosmo
 from astropy import constants as const
 from powerbox import get_power
 
-# import hmf import MassFunction
-import hmf
-
 
 def star_formation_rate(M, z=7, sim_num=1):
     """
@@ -163,18 +160,6 @@ def scale_factor(z):
         * cosmo.comoving_transverse_distance(z) ** 2
         / (4 * np.pi * cosmo.luminosity_distance(z) ** 2)
     )
-
-
-def mean_I(z, L=L_gal, n=5000, sim_num=1):
-    """Mean Lyman Alpha Intensity"""
-    dlog10m = (13 - 8.0) / n
-    h = MassFunction(z=z, Mmin=8, Mmax=13, hmf_model="SMT", dlog10m=dlog10m)
-    M = h.m * cosmo.h
-    dM = np.diff(M)
-    nu = 2.47e15 / u.s / (1 + z)
-    dndm = h.dndm[1:] * u.Mpc ** -3
-    nu_I = nu * np.sum(dndm * dM * L(M[1:], z, sim_num=sim_num) * scale_factor(z))
-    return nu_I.to(u.erg / u.cm ** 2 / u.s)
 
 
 def cube_brightness(M, halo_pos, z, n=256):
