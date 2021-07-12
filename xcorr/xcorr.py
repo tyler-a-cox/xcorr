@@ -30,6 +30,16 @@ def power_spectra(cube, boxlength, get_variance=False, deltax2=None, **kwargs):
         return ps * k ** 3 / (2 * np.pi ** 2), k
 
 
+def r(deltax, deltax2, boxlength, get_variance=False, **kwargs):
+    """
+    Cross-correlation coefficient
+    """
+    PS_1, k = power_spectra(deltax, boxlength, **kwargs)
+    PS_2, _ = power_spectra(deltax2, boxlength, **kwargs)
+    PS_x, _ = power_spectra(deltax, boxlength, deltax2=deltax2, **kwargs)
+    return PS_x / np.sqrt(PS_1 * PS_2), k
+
+
 def star_formation_rate(M, z=7, sim_num=1):
     """
     Returns the star-formation rate for a dark-matter halo of a given mass
