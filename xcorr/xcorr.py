@@ -5,6 +5,31 @@ from astropy import constants as const
 from powerbox import get_power
 
 
+def power_spectra(cube, boxlength, get_variance=False, deltax2=None, **kwargs):
+    """
+    Light wrapper over get_power
+    """
+
+    deltax = cube / cube.mean() - 1.0
+
+    if deltax2 is None:
+        deltax2 = deltax
+
+    else:
+        deltax2 = deltax2 / deltax2.mean() - 1.0
+
+    if get_variance:
+        ps, k, var = get_power(
+            deltax, boxlength, get_variance=get_variance, deltax2=deltax2, **kwargs
+        )
+        return ps, k, var
+
+    else:
+        ps, k = get_power(deltax, boxlength, deltax2=deltax2, **kwargs)
+
+        return ps * k ** 3 / (2 * np.pi ** 2), k
+
+
 def star_formation_rate(M, z=7, sim_num=1):
     """
     Returns the star-formation rate for a dark-matter halo of a given mass
