@@ -3,6 +3,25 @@ import astropy.units as u
 from astropy.cosmology import Planck15 as cosmo
 from astropy import constants as const
 from powerbox import get_power
+from scipy.interpolate import interp1d
+
+
+def dimensional_ps(cube, boxlength, deltax2=None, get_variance=False, **kwargs):
+    """
+    Dimensional Power Spectrum
+
+    """
+    if deltax2 is None:
+        deltax2 = cube
+
+    if get_variance:
+        ps, k, var = power_spectra(
+            cube, boxlength, get_variance=get_variance, deltax2=deltax2, **kwargs
+        )
+    else:
+        ps, k = power_spectra(cube, boxlength, deltax2=deltax2, **kwargs)
+
+    return cube.mean() * deltax2.mean() * ps, k
 
 
 def power_spectra(cube, boxlength, get_variance=False, deltax2=None, **kwargs):
@@ -158,7 +177,7 @@ def L_gal(M, z, sim_num=1):
     return L_gal_exc(M, z, sim_num=sim_num) + L_gal_rec(M, z, sim_num=sim_num)
 
 
-def I_gal(M, z, n=256.0, cube_volume=200.0):
+def I_gal(M, z, n=200.0, cube_volume=300.0):
     """
     Lyman Alpha surface brightness due to galactic emission
     """
@@ -190,6 +209,8 @@ def scale_factor(z):
     """
     Common scale factor that appears fairly often.
     """
+    # TODO: originally was using cosmo.comoving_transverse_distance
+    # changed to cosmo.angular_diameter_distance
     return (
         y(z)
         * cosmo.comoving_transverse_distance(z) ** 2
@@ -197,7 +218,7 @@ def scale_factor(z):
     )
 
 
-def cube_brightness(M, halo_pos, z, n=256):
+def cube_brightness(M, halo_pos, z, n=200):
     """
     Surface brightness of a
     """
@@ -205,6 +226,21 @@ def cube_brightness(M, halo_pos, z, n=256):
     I_vals = I_gal(M, z, n=n).value
     lya_field[halo_pos[:, 0], halo_pos[:, 1], halo_pos[:, 2]] += I_vals
     return lya_field
+
+
+def cube_brightness_change(M, halo_pos, z, n=200):
+    """
+    Surface brightness of a
+    """
+    lya_field = np.zeros((n, n, n))
+    I_vals = I_gal(M, z, n=n).value
+    np.add.at(lya_field, (halo_pos[:, 0], halo_pos[:, 1], halo_pos[:, 2]), I_vals)
+    return lya_field
+
+
+"""
+Diffuse Component
+"""
 
 
 def n_rec_dot(T_k, x, delta_x, z):
@@ -217,8 +253,9 @@ def n_e(x, delta_x, z):
     return x * n_b(delta_x, z)
 
 
-def n_b(delta_x, z, n_b0=1.905e-7 * u.cm ** -3):
+def n_b(delta_x, z):
     """ """
+    n_b0 = 1.905e-7 * u.cm ** -3
     return delta_x * (1 + z) ** 3 * n_b0
 
 
@@ -231,7 +268,6 @@ def alpha(T_k, z):
     """
     Recombination coefficient
     """
-    T_k = 1e4
     units = u.cm ** 3 / u.s
     return 4.2e-13 * (T_k / 1e4) ** -0.7 * (1 + z) ** 3 * units
 
