@@ -4,10 +4,11 @@ import astropy.units as u
 from astropy.cosmology import Planck15 as cosmo
 from astropy import constants as const
 from powerbox import get_power
-import py21cmsense as p21s
+
+# import py21cmsense as p21s
 
 
-class Interferometer(p21s):
+class Interferometer:
     """
     Noise for 21cm and CO intensity mappers
     """
