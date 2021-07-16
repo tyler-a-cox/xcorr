@@ -20,6 +20,7 @@ requirements = [
     "matplotlib",
     "powerbox",
     "cached-property",
+    "tqdm",
 ]
 
 test_requirements = []

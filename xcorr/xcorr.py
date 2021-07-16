@@ -3,6 +3,7 @@ import astropy.units as u
 from astropy.cosmology import Planck15 as cosmo
 from astropy import constants as const
 from powerbox import get_power
+import tqdm
 from scipy.interpolate import interp1d
 from functools import lru_cache
 from .utils import *
