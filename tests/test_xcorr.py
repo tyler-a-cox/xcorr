@@ -9,7 +9,7 @@ from xcorr import xcorr
 
 
 class Cube(unittest.TestCase):
-    """Tests for `xcorr` package."""
+    """Tests for `Cube` class."""
 
     def setUp(self):
         """Set up test fixtures, if any."""
@@ -22,7 +22,7 @@ class Cube(unittest.TestCase):
 
 
 class CarbonMonoxide(unittest.TestCase):
-    """Tests for `xcorr` package."""
+    """Tests for `CarbonMonoxide` class."""
 
     def setUp(self):
         """Set up test fixtures, if any."""
@@ -35,7 +35,7 @@ class CarbonMonoxide(unittest.TestCase):
 
 
 class HAlpha(unittest.TestCase):
-    """Tests for `xcorr` package."""
+    """Tests for `HAlpha` class."""
 
     def setUp(self):
         """Set up test fixtures, if any."""
@@ -48,7 +48,7 @@ class HAlpha(unittest.TestCase):
 
 
 class LymanAlpha(unittest.TestCase):
-    """Tests for `xcorr` package."""
+    """Tests for `LymanAlpha` class."""
 
     def setUp(self):
         """Set up test fixtures, if any."""

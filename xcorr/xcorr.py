@@ -4,6 +4,7 @@ from astropy.cosmology import Planck15 as cosmo
 from astropy import constants as const
 from powerbox import get_power
 from scipy.interpolate import interp1d
+from functools import lru_cache
 from .utils import *
 
 
@@ -13,6 +14,9 @@ class Cube:
     def __init__(self, **kwargs):
         """ """
         self.kwargs = kwargs
+        self.cube = cube
+        self.boxlength = boxlength
+        self.N = cube.shape[0]
 
     def cross(self, a):
         """
@@ -20,6 +24,7 @@ class Cube:
         """
         pass
 
+    @lru_cache
     def power_spectra(
         self, cube, boxlength, get_variance=False, deltax2=None, **kwargs
     ):
@@ -124,7 +129,7 @@ class LymanAlpha(Cube):
 
     def attenuate(self, run, halomasses, halocoords):
         """
-        Calculate tau lyman alpha halos
+        Calculate tau for lyman alpha halos
         """
         return
 
@@ -325,9 +330,132 @@ class LymanAlpha(Cube):
         nu = 2.47e15 / u.s / (1 + z)
         return (L_diffuse(T_k, x, delta_x, z) * c * nu).to(u.erg / u.cm ** 2 / u.s)
 
+    def tau_s(self, z_s):
+        """ """
+        return (
+            6.45e5
+            * (cosmo.Ob0 * cosmo.h / 0.03)
+            * (cosmo.Om0 / 0.3) ** -0.5
+            * ((1 + z_s) / 10)
+        )
+
+    def helper(self, x):
+        """ """
+        return (
+            x ** 4.5 / (1.0 - x)
+            + 9 / 7 * x ** 3.5
+            + 9.0 / 5.0 * x ** 2.5
+            + 3 * x ** 1.5
+            + 9 * x ** 0.5
+            - 4.5 * np.log((1 + x ** 0.5) / (1 - x ** 0.5))
+        )
+
+    def tau_lya(halo_pos, xH, z, z_reion=6.0, dim=256, width=200 * u.Mpc):
+        """
+        xH: (np.array, int)
+            Average neutral fraction
+
+        z: float
+            Source redshift
+
+        halo_file: float
+            asdf
+
+        Returns:
+        -------
+
+        """
+        D = self.rand_average_bubble_size(halo_pos, xH, dim=dim, width=width)
+        z_obs = z + self.hand_wavy_redshift(z, D)
+        h_diff = self.helper((1 + z) / (1 + z_obs)) - self.helper(
+            (1 + z_reion) / (1 + z_obs)
+        )
+        return (
+            np.mean(xH)
+            * self.tau_s(z)
+            * (2.02e-8 / np.pi)
+            * ((1 + z) / (1 + z_obs)) ** 1.5
+            * h_diff
+        )
+
+    def hand_wavy_redshift(self, z, D=6.6 * u.Mpc):
+        """ """
+        return (cosmo.H(z) * D / const.c).to(u.dimensionless_unscaled)
+
+    def bubble_size(self, pos, xH):
+        """
+
+        Return the ionized bubble size in voxels
+
+        Parameters:
+        ----------
+
+        pos : tuple, np.array
+            LAE halo positions
+
+        xH : np.array
+            Neutral fraction cube
+
+        """
+        try:
+            return np.abs(
+                pos[2]
+                - np.array(
+                    np.nonzero(
+                        xH[
+                            pos[0],
+                            pos[1],
+                        ]
+                    )
+                )
+            ).min()
+
+        except:
+            return -1
+
+    def average_bubble_size(self, halo_pos, xH, dim=256.0, width=200.0 * u.Mpc):
+        """
+        Calculates the mean of the whole sample
+        """
+        pix = 0
+        count = 0
+        for i in tqdm.tqdm(
+            range(halo_pos.shape[0]),
+            desc="Calculating Mean Bubble Size",
+            unit="halo",
+            total=halo_pos.shape[0],
+        ):
+            size = self.bubble_size(halo_pos[i, :], xH)
+            if size > 0:
+                pix += size
+                count += 1
+        return (pix / count) * (width / dim)
+
+    def rand_average_bubble_size(self, halo_pos, xH, dim=256.0, width=200.0 * u.Mpc):
+        """
+        Randomly selects ~1% of the population to take the mean
+        """
+        pix = 0
+        count = 0
+        s = halo_pos.shape[0]
+        idx = np.random.choice(np.arange(s), replace=False, size=int(s / 100.0))
+        pos = halo_pos[idx, :]
+
+        for i in tqdm.tqdm(
+            range(pos.shape[0]),
+            desc="Calculating Mean Bubble Size",
+            unit="halo",
+            total=pos.shape[0],
+        ):
+            size = self.bubble_size(pos[i, :], xH)
+            if size > 0:
+                pix += size
+                count += 1
+        return (pix / count) * (width / dim)
+
     def __repr__(self):
         """ """
-        pass
+        return
 
 
 class CarbonMonoxide(Cube):
@@ -335,7 +463,6 @@ class CarbonMonoxide(Cube):
 
     def __init__(self):
         """ """
-        name = "CO"
         super().__init__(**kwargs)
 
     def simulate(self, attenuation=False, method="skewer"):
@@ -355,7 +482,6 @@ class HAlpha(Cube):
 
     def __init__(self):
         """ """
-        name = "H-alpha"
         super().__init__(**kwargs)
 
     def simulate(self, attenuation=False, method="skewer"):
