@@ -25,7 +25,7 @@ class Cube:
         """
         pass
 
-    @lru_cache
+    # @lru_cache
     def power_spectra(
         self, cube, boxlength, get_variance=False, deltax2=None, **kwargs
     ):
