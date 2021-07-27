@@ -326,7 +326,7 @@ class LymanAlpha(Cube):
         """ """
         c = (
             y(z)
-            * cosmo.comoving_transverse_distance(z) ** 2
+            * cosmo.angular_diameter_distance(z) ** 2
             / (4 * np.pi * cosmo.luminosity_distance(z) ** 2)
         )
         nu = 2.47e15 / u.s / (1 + z)
