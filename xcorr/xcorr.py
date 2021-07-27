@@ -12,23 +12,19 @@ from .utils import *
 class Cube:
     """ """
 
-    def __init__(self, **kwargs):
+    def __init__(self, N=200, boxlength=300):
         """ """
-        self.kwargs = kwargs
-        self.cube = cube
         self.boxlength = boxlength
-        self.N = cube.shape[0]
+        self.N = N
 
-    def cross(self, a):
+    def cross(self, a, b, **kwargs):
         """
         Use powerbox to cross-correlate with another cube object
         """
-        pass
+        self.power_spectra(a, deltax2=b, **kwargs)
 
     # @lru_cache
-    def power_spectra(
-        self, cube, boxlength, get_variance=False, deltax2=None, **kwargs
-    ):
+    def power_spectra(self, cube, get_variance=False, deltax2=None, **kwargs):
         """
         Light wrapper over get_power
 
@@ -46,18 +42,20 @@ class Cube:
 
         if get_variance:
             ps, k, var = get_power(
-                deltax, boxlength, get_variance=get_variance, deltax2=deltax2, **kwargs
+                deltax,
+                self.boxlength,
+                get_variance=get_variance,
+                deltax2=deltax2,
+                **kwargs
             )
             return ps, k, var
 
         else:
-            ps, k = get_power(deltax, boxlength, deltax2=deltax2, **kwargs)
+            ps, k = get_power(deltax, self.boxlength, deltax2=deltax2, **kwargs)
 
             return ps * k ** 3 / (2 * np.pi ** 2), k
 
-    def dimensional_ps(
-        self, cube, boxlength, deltax2=None, get_variance=False, **kwargs
-    ):
+    def dimensional_ps(self, cube, deltax2=None, get_variance=False, **kwargs):
         """
         Dimensional Power Spectrum
 
@@ -67,10 +65,10 @@ class Cube:
 
         if get_variance:
             ps, k, var = self.power_spectra(
-                cube, boxlength, get_variance=get_variance, deltax2=deltax2, **kwargs
+                cube, get_variance=get_variance, deltax2=deltax2, **kwargs
             )
         else:
-            ps, k = self.power_spectra(cube, boxlength, deltax2=deltax2, **kwargs)
+            ps, k = self.power_spectra(cube, deltax2=deltax2, **kwargs)
 
         return cube.mean() * deltax2.mean() * ps, k
 
@@ -107,7 +105,7 @@ class Hyperfine(Cube):
 class LymanAlpha(Cube):
     """ """
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         """ """
         name = "Lyman Alpha"
         super().__init__(**kwargs)
@@ -152,7 +150,8 @@ class LymanAlpha(Cube):
 
         if sim_num == 1:
             a, b, d, c1, c2 = 2.8, -0.94, -1.7, 1e9, 7e10
-            sfr = 2.8e-28 * (M ** a) * (1.0 + M / c1) ** b * (1.0 + M / c2) ** d
+            # Note A = 3e-28, not 2e-28
+            sfr = 3e-28 * (M ** a) * (1.0 + M / c1) ** b * (1.0 + M / c2) ** d
 
         if sim_num == 2:
             a, b, d, e, c1, c2, c3 = 2.59, -0.62, 0.4, -2.25, 8e8, 7e9, 1e11
@@ -262,29 +261,31 @@ class LymanAlpha(Cube):
             M, z, sim_num=sim_num
         )
 
-    def I_gal(self, M, z, n=200.0, cube_volume=300.0):
+    def I_gal(self, M, z, sim_num=1, csn=True):
         """
         Lyman Alpha surface brightness due to galactic emission
         """
-        V = (cube_volume * u.Mpc / n) ** 3
+        V = (self.boxlength * u.Mpc / self.N) ** 3
         nu = 2.47e15 / u.s / (1 + z)
-        return (nu * scale_factor(z) * L_gal(M, z) / V).to(u.erg / u.cm ** 2 / u.s)
+        return (
+            nu * scale_factor(z, csn=csn) * self.L_gal(M, z, sim_num=sim_num) / V
+        ).to(u.erg / u.cm ** 2 / u.s)
 
-    def cube_brightness(self, M, halo_pos, z, n=200):
+    def cube_brightness(self, M, halo_pos, z, csn=True):
         """
         Surface brightness of a
         """
-        lya_field = np.zeros((n, n, n))
-        I_vals = I_gal(M, z, n=n).value
+        lya_field = np.zeros((self.N, self.N, self.N))
+        I_vals = self.I_gal(M, z, csn=csn).value
         lya_field[halo_pos[:, 0], halo_pos[:, 1], halo_pos[:, 2]] += I_vals
         return lya_field
 
-    def cube_brightness_change(self, M, halo_pos, z, n=200):
+    def cube_brightness_change(self, M, halo_pos, z, sim_num=1, csn=True):
         """
         Surface brightness of a
         """
-        lya_field = np.zeros((n, n, n))
-        I_vals = I_gal(M, z, n=n).value
+        lya_field = np.zeros((self.N, self.N, self.N))
+        I_vals = self.I_gal(M, z, sim_num=sim_num, csn=csn).value
         np.add.at(lya_field, (halo_pos[:, 0], halo_pos[:, 1], halo_pos[:, 2]), I_vals)
         return lya_field
 

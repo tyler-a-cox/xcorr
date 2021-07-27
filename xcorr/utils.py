@@ -79,14 +79,21 @@ def y(z):
     return l_lya * (1.0 + z) ** 2 / H(z)
 
 
-def scale_factor(z):
+def scale_factor(z, csn=True):
     """
     Common scale factor that appears fairly often.
     """
     # TODO: originally was using cosmo.comoving_transverse_distance
     # changed to cosmo.angular_diameter_distance
-    return (
-        y(z)
-        * cosmo.comoving_transverse_distance(z) ** 2
-        / (4 * np.pi * cosmo.luminosity_distance(z) ** 2)
-    )
+    if csn:
+        return (
+            y(z)
+            * cosmo.angular_diameter_distance(z) ** 2
+            / (4 * np.pi * cosmo.luminosity_distance(z) ** 2)
+        )
+    else:
+        return (
+            y(z)
+            * cosmo.comoving_transverse_distance(z) ** 2
+            / (4 * np.pi * cosmo.luminosity_distance(z) ** 2)
+        )
