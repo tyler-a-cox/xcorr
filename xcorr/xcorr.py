@@ -295,11 +295,11 @@ class LymanAlpha(Cube):
 
     def n_rec_dot(self, T_k, x, delta_x, z):
         """ """
-        return alpha(T_k, z) * n_e(x, delta_x, z) * n_HII(x, delta_x, z)
+        return self.alpha(T_k, z) * self.n_e(x, delta_x, z) * self.n_HII(x, delta_x, z)
 
     def n_e(self, x, delta_x, z):
         """ """
-        return x * n_b(delta_x, z)
+        return x * self.n_b(delta_x, z)
 
     def n_b(self, delta_x, z):
         """ """
@@ -308,7 +308,7 @@ class LymanAlpha(Cube):
 
     def n_HII(self, x, delta_x, z, Y_He=0.24):
         """ """
-        return n_e(x, delta_x, z) * (4.0 - 4.0 * Y_He) / (4.0 - 3 * Y_He)
+        return self.n_e(x, delta_x, z) * (4.0 - 4.0 * Y_He) / (4.0 - 3 * Y_He)
 
     def alpha(self, T_k, z):
         """
@@ -320,7 +320,7 @@ class LymanAlpha(Cube):
     def L_diffuse(self, T_k, x, delta_x, z, f_rec=0.66):
         """ """
         E_lya = 1.637e-11 * u.erg
-        return f_rec * n_rec_dot(T_k, x, delta_x, z) * E_lya
+        return f_rec * self.n_rec_dot(T_k, x, delta_x, z) * E_lya
 
     def I_diffuse(self, T_k, x, delta_x, z):
         """ """
@@ -330,7 +330,7 @@ class LymanAlpha(Cube):
             / (4 * np.pi * cosmo.luminosity_distance(z) ** 2)
         )
         nu = 2.47e15 / u.s / (1 + z)
-        return (L_diffuse(T_k, x, delta_x, z) * c * nu).to(u.erg / u.cm ** 2 / u.s)
+        return (self.L_diffuse(T_k, x, delta_x, z) * c * nu).to(u.erg / u.cm ** 2 / u.s)
 
     def tau_s(self, z_s):
         """ """
