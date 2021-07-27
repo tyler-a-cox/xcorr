@@ -291,24 +291,40 @@ class LymanAlpha(Cube):
 
     """
     Diffuse Component
+
+    Check:
+        - alpha looks good
+        - nHII looks good
+        -
+
     """
 
-    def n_rec_dot(self, T_k, x, delta_x, z):
+    def n_rec_dot(self, T_k, x, delta_x, z, plus=True):
         """ """
-        return self.alpha(T_k, z) * self.n_e(x, delta_x, z) * self.n_HII(x, delta_x, z)
+        return (
+            self.alpha(T_k, z)
+            * self.n_e(x, delta_x, z, plus=plus)
+            * self.n_HII(x, delta_x, z)
+        )
 
-    def n_e(self, x, delta_x, z):
+    def n_e(self, x, delta_x, z, plus=True):
         """ """
-        return x * self.n_b(delta_x, z)
+        return x * self.n_b(delta_x, z, plus=plus)
 
-    def n_b(self, delta_x, z):
+    def n_b(self, delta_x, z, plus=True):
         """ """
         n_b0 = 1.905e-7 * u.cm ** -3
-        return delta_x * (1 + z) ** 3 * n_b0
+        if plus:
+            return (1 + delta_x) * (1 + z) ** 3 * n_b0
 
-    def n_HII(self, x, delta_x, z, Y_He=0.24):
+        else:
+            return delta_x * (1 + z) ** 3 * n_b0
+
+    def n_HII(self, x, delta_x, z, Y_He=0.24, plus=True):
         """ """
-        return self.n_e(x, delta_x, z) * (4.0 - 4.0 * Y_He) / (4.0 - 3 * Y_He)
+        return (
+            self.n_e(x, delta_x, z, plus=plus) * (4.0 - 4.0 * Y_He) / (4.0 - 3 * Y_He)
+        )
 
     def alpha(self, T_k, z):
         """
@@ -317,20 +333,26 @@ class LymanAlpha(Cube):
         units = u.cm ** 3 / u.s
         return 4.2e-13 * (T_k / 1e4) ** -0.7 * (1 + z) ** 3 * units
 
-    def L_diffuse(self, T_k, x, delta_x, z, f_rec=0.66):
+    def f_rec(self, T_k):
+        """ """
+        return 0.686 - 0.106 * np.log10(T_k / 1e4) - 0.009 * (T_k / 1e4) ** -0.4
+
+    def L_diffuse(self, T_k, x, delta_x, z, plus=True):
         """ """
         E_lya = 1.637e-11 * u.erg
-        return f_rec * self.n_rec_dot(T_k, x, delta_x, z) * E_lya
+        return self.f_rec(T_k) * self.n_rec_dot(T_k, x, delta_x, z, plus=plus) * E_lya
 
-    def I_diffuse(self, T_k, x, delta_x, z):
+    def I_diffuse(self, T_k, x, delta_x, z, csn=True, plus=True):
         """ """
-        c = (
-            y(z)
-            * cosmo.angular_diameter_distance(z) ** 2
-            / (4 * np.pi * cosmo.luminosity_distance(z) ** 2)
-        )
+        c = scale_factor(z, csn=csn)
         nu = 2.47e15 / u.s / (1 + z)
-        return (self.L_diffuse(T_k, x, delta_x, z) * c * nu).to(u.erg / u.cm ** 2 / u.s)
+        return (self.L_diffuse(T_k, x, delta_x, z, plus=plus) * c * nu).to(
+            u.erg / u.cm ** 2 / u.s
+        )
+
+    """
+    attention
+    """
 
     def tau_s(self, z_s):
         """ """
