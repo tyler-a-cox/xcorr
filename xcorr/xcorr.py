@@ -295,7 +295,10 @@ class LymanAlpha(Cube):
     Check:
         - alpha looks good
         - nHII looks good
-        -
+        - nb might need some work
+        - n_e looks good
+        - nrec dot looks good
+        - frec looks good
 
     """
 
