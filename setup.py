@@ -39,12 +39,8 @@ setup(
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
     ],
-    description="Python package for simulating and cross-corcorrelating intensity mapping observations",
-    entry_points={
-        "console_scripts": [
-            "xcorr=xcorr.cli:main",
-        ],
-    },
+    description="Python package for simulating and cross-correlating intensity mapping observations",
+    entry_points={"console_scripts": ["xcorr=xcorr.cli:main",],},
     install_requires=requirements,
     license="BSD license",
     long_description=readme + "\n\n" + history,

@@ -480,6 +480,37 @@ class LymanAlpha(Cube):
                 count += 1
         return (pix / count) * (width / dim)
 
+    def tau_gp(self, zs):
+        """
+        """
+        tgp = 7.16e5 * ((1 + zs) / 10) ** (3/2)
+        return tgp
+
+    def tau_LOS(self, coords, xH, z, N=200, boxlength=300):
+        """
+        """
+        taus = np.zeros(coords.shape[0])
+
+        for k in tqdm.tqdm(range(N)):
+            ind = coords[:, 2] == k
+            halos = coords[ind]
+            skewers = xH[halos[:, 0], halos[:, 1]]
+
+            if k > N // 2:
+                k = N - k
+                skewer = skewers[:, ::-1]
+
+            zsource = z - self.hand_wavy_redshift(z, boxlength / N * u.Mpc * k)
+            si = np.arange(k, N - 1)
+            zbi = zsource - self.hand_wavy_redshift(zsource, boxlength / N * si * u.Mpc)
+            zei = zsource - self.hand_wavy_redshift(zsource, boxlength / N * (si + 1) * u.Mpc)
+            tau = self.tau_gp(zsource) * (2.02e-8 / np.pi)
+            special = self.helper((1 + zbi) / (1 + zsource)) - self.helper((1 + zei) / (1 + zsource))
+            # This used to be k+1
+            taus[ind] = np.sum(tau * skewers[:, k:-1] * special * ((1 + zbi) / (1 + zsource)) ** (3/2), axis=1)
+
+        return np.array(taus)
+
     def __repr__(self):
         """ """
         return
