@@ -94,6 +94,6 @@ def scale_factor(z, csn=True):
     else:
         return (
             y(z)
-            * cosmo.comoving_transverse_distance(z) ** 2
-            / (4 * np.pi * cosmo.luminosity_distance(z) ** 2)
+            * cosmo.angular_diameter_distance(z) ** 2
+            / (4 * np.pi * cosmo.lookback_distance(z) ** 2)
         )
