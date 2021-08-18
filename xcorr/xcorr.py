@@ -151,7 +151,7 @@ class LymanAlpha(Cube):
         if sim_num == 1:
             a, b, d, c1, c2 = 2.8, -0.94, -1.7, 1e9, 7e10
             # Note A = 3e-28, not 2e-28
-            sfr = 3e-28 * (M ** a) * (1.0 + M / c1) ** b * (1.0 + M / c2) ** d
+            sfr = 2e-27 * (M ** a) * (1.0 + M / c1) ** b * (1.0 + M / c2) ** d
 
         if sim_num == 2:
             a, b, d, e, c1, c2, c3 = 2.59, -0.62, 0.4, -2.25, 8e8, 7e9, 1e11
@@ -425,17 +425,7 @@ class LymanAlpha(Cube):
 
         """
         try:
-            return np.abs(
-                pos[2]
-                - np.array(
-                    np.nonzero(
-                        xH[
-                            pos[0],
-                            pos[1],
-                        ]
-                    )
-                )
-            ).min()
+            return np.abs(pos[2] - np.array(np.nonzero(xH[pos[0], pos[1],]))).min()
 
         except:
             return -1
@@ -483,7 +473,7 @@ class LymanAlpha(Cube):
     def tau_gp(self, zs):
         """
         """
-        tgp = 7.16e5 * ((1 + zs) / 10) ** (3/2)
+        tgp = 7.16e5 * ((1 + zs) / 10) ** (3 / 2)
         return tgp
 
     def tau_LOS(self, coords, xH, z, N=200, boxlength=300):
@@ -503,11 +493,21 @@ class LymanAlpha(Cube):
             zsource = z - self.hand_wavy_redshift(z, boxlength / N * u.Mpc * k)
             si = np.arange(k, N - 1)
             zbi = zsource - self.hand_wavy_redshift(zsource, boxlength / N * si * u.Mpc)
-            zei = zsource - self.hand_wavy_redshift(zsource, boxlength / N * (si + 1) * u.Mpc)
+            zei = zsource - self.hand_wavy_redshift(
+                zsource, boxlength / N * (si + 1) * u.Mpc
+            )
             tau = self.tau_gp(zsource) * (2.02e-8 / np.pi)
-            special = self.helper((1 + zbi) / (1 + zsource)) - self.helper((1 + zei) / (1 + zsource))
+            special = self.helper((1 + zbi) / (1 + zsource)) - self.helper(
+                (1 + zei) / (1 + zsource)
+            )
             # This used to be k+1
-            taus[ind] = np.sum(tau * skewers[:, k:-1] * special * ((1 + zbi) / (1 + zsource)) ** (3/2), axis=1)
+            taus[ind] = np.sum(
+                tau
+                * skewers[:, k:-1]
+                * special
+                * ((1 + zbi) / (1 + zsource)) ** (3 / 2),
+                axis=1,
+            )
 
         return np.array(taus)
 
