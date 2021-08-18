@@ -151,7 +151,7 @@ class LymanAlpha(Cube):
         if sim_num == 1:
             a, b, d, c1, c2 = 2.8, -0.94, -1.7, 1e9, 7e10
             # Note A = 3e-28, not 2e-28
-            sfr = 2e-27 * (M ** a) * (1.0 + M / c1) ** b * (1.0 + M / c2) ** d
+            sfr = 3e-28 * (M ** a) * (1.0 + M / c1) ** b * (1.0 + M / c2) ** d
 
         if sim_num == 2:
             a, b, d, e, c1, c2, c3 = 2.59, -0.62, 0.4, -2.25, 8e8, 7e9, 1e11
