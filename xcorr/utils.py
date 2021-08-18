@@ -89,7 +89,7 @@ def scale_factor(z, csn=True):
         return (
             y(z)
             * cosmo.angular_diameter_distance(z) ** 2
-            / (4 * np.pi * cosmo.luminosity_distance(z) ** 2)
+            / cosmo.luminosity_distance(z) ** 2
         )
     else:
         return (
